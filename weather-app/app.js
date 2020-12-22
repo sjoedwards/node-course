@@ -1,14 +1,25 @@
 require("dotenv/config");
+const geocode = require("./utils/geocode");
+const forecast = require("./utils/forecast");
 
-console.log("Starting");
-console.log(process.env.WEATHER_STACK_KEY);
+const location = process.argv[2];
 
-setTimeout(() => {
-  console.log("Timer");
-}, 1000);
+if (!location) {
+  console.log("Please provide an address");
+  return;
+}
 
-setTimeout(() => {
-  console.log("0 second timer");
-}, 0);
-
-console.log("Stopping");
+geocode(location, (error, { latitude, longitude, location } = {}) => {
+  if (error) {
+    console.log(error);
+    return;
+  }
+  forecast(latitude, longitude, (error, forecastData) => {
+    if (error) {
+      console.log(error);
+      return;
+    }
+    console.log(location);
+    console.log(forecastData);
+  });
+});
