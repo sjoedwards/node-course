@@ -5,6 +5,7 @@ const forecast = require("./utils/forecast");
 const geocode = require("./utils/geocode");
 require("dotenv/config");
 
+const port = process.env.PORT || 3000;
 const app = express();
 const publicDirectoryPath = path.join(__dirname, "../public");
 app.use(express.static(path.join(publicDirectoryPath)));
@@ -92,6 +93,6 @@ app.get("*", (req, res) => {
 const createError = (res, message) => res.send({ error: message });
 const createResponse = (res, data) => res.send({ data });
 
-app.listen(3000, () => {
-  console.log("Server is up on port 3000");
+app.listen(port, () => {
+  console.log(`Server is up on port ${port}`);
 });
