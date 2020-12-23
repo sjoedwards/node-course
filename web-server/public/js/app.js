@@ -21,9 +21,14 @@ weatherForm.addEventListener("submit", (e) =>
       .then((response) => {
         response
           .json()
-          .then(({ data }) => {
-            // Here
-            console.log("here", data);
+          .then(({ data, error }) => {
+            if (error) {
+              console.error(error);
+              return;
+            }
+            if (!data) {
+              console.error("No data returned");
+            }
             messageOne.textContent = data.location;
             messageTwo.textContent = data.forecast;
           })
