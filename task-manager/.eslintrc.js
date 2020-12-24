@@ -5,7 +5,11 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: ["eslint:recommended", "plugin:prettier/recommended"],
+  extends: [
+    "eslint:recommended",
+    "plugin:prettier/recommended",
+    "plugin:promise/recommended",
+  ],
   parserOptions: {
     ecmaVersion: 12,
   },
