@@ -12,34 +12,56 @@ MongoClient.connect(
     }
 
     const db = client.db(databaseName);
+    const users = db.collection("users");
+    const collectionExists = users
+      .find({})
+      .toArray()
+      .then((result) => result.length > 0);
 
-    // db.collection("users").findOne(
-    //   { _id: new ObjectID("5fe3589ed2719b456d014b2e") },
-    //   (error, user) => {
-    //     if (error) {
-    //       return console.log("Unable to fetch");
-    //     }
-
-    //     console.log("user", user);
-    //   }
-    // );
-
-    // db.collection("users")
-    //   .find({ age: 27 })
-    //   .count((error, users) => {
-    //     console.log(users);
-    //   });
-
-    db.collection("tasks").insertOne({
-      description: "test1",
-      completed: false,
-    });
-
-    db.collection("tasks")
-      .find({ completed: false })
-      .toArray((error, tasks) => {
-        console.log(error);
-        console.log(tasks);
+    const dropCollectionIfExists = (collection) =>
+      new Promise((resolve) => {
+        collectionExists.then((exists) => {
+          if (exists) {
+            collection.drop().then(() => {
+              resolve();
+            });
+          } else {
+            resolve();
+          }
+        });
       });
+
+    dropCollectionIfExists(users).then(
+      users
+        .insertOne({ name: "Jim", age: 25 })
+        .then(({ ops }) => {
+          const { _id } = ops[0];
+          users
+            .updateOne({ _id }, { $set: { name: "Jimbo" } })
+            .then(() => {
+              console.log("Success!");
+            })
+            .catch((e) => console.log(`Couldn't update user: ${e}`));
+        })
+        .catch(() => console.log("Couldn't insert user"))
+    );
+
+    const tasks = db.collection("tasks");
+
+    dropCollectionIfExists(tasks).then(
+      tasks
+        .insertMany([
+          { description: "Clean the house", completed: true },
+          { description: "Renew inpection", completed: false },
+          { description: "Pot plants", completed: false },
+        ])
+        .then(() => {
+          tasks
+            .updateMany({ completed: false }, { $set: { completed: true } })
+            .then(() => console.log("Success!"))
+            .catch((e) => console.log(`Couldn't update tasks: ${e}`));
+        })
+        .catch(() => console.log("Couldn't insert user"))
+    );
   }
 );
