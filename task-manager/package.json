@@ -20,8 +20,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./mongodb.js -e js,hbs",
-    "start": "node src/db/mongoose.js"
+    "dev": "nodemon src/index.js -e js,hbs",
+    "start": "node src/index.js"
   },
   "author": "",
   "license": "ISC",

@@ -1,3 +1,5 @@
+// This file is not used, but is useful for knowing how to interface directly with MongoDB
+
 const { MongoClient } = require("mongodb");
 
 const connectionURL = "mongodb://127.0.0.1:27017";
