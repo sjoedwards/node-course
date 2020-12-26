@@ -7,7 +7,7 @@ const user = new User({
   password: "usernames123",
 });
 
-const dropCollectionIfExists = (model) => {
+const dropCollectionIfExists = (model) =>
   model
     .exists()
     .then((exists) => {
@@ -18,14 +18,17 @@ const dropCollectionIfExists = (model) => {
       }
     })
     .catch((e) => console.log(e));
+
+const updateAgeAndCount = async (id, age) => {
+  await User.findByIdAndUpdate(id, { age });
+  const count = await User.countDocuments({ age });
+  return count;
 };
 
-// .then must return a promise or throw an exception
 User.exists()
   .then(() => dropCollectionIfExists(User))
   .then(() => user.save())
   .then(() => User.findOne({}))
-  .then(({ _id }) => User.findByIdAndUpdate(_id, { age: 2 }))
-  .then(() => User.countDocuments({ age: 2 }))
+  .then(({ _id: id }) => updateAgeAndCount(id, 2))
   .then((result) => console.log(result))
   .catch((e) => console.log(e));
