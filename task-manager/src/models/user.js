@@ -1,6 +1,7 @@
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -39,8 +40,32 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
+// Add to the instance of the collection i.e. user.function
+userSchema.methods.generateAuthToken = async function () {
+  // We don't use arrow functions because we want scope of this
+  const user = this;
+  const token = jwt.sign(
+    { _id: user._id.toString() },
+    process.env.USER_SIGNING_SECRET
+  );
+
+  //Add the token to the users token array and save
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+  return token;
+};
+
+// Add to the instance of the model i.e. User.function
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) {
@@ -58,6 +83,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
 // Hash password before saving
 userSchema.pre("save", async function (next) {
+  // We don't use arrow functions because we want scope of this
   const user = this;
 
   // If the password was modified

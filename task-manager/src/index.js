@@ -1,4 +1,5 @@
 const express = require("express");
+require("dotenv/config");
 
 // Start database connection
 require("./db/mongoose");
