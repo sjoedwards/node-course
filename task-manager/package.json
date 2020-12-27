@@ -21,7 +21,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/index.js -e js,hbs",
+    "dev": "yarn run drop-collections && nodemon src/index.js -e js,hbs",
+    "drop-collections": "node src/util/dropCollections.js",
     "start": "node src/index.js"
   },
   "author": "",
