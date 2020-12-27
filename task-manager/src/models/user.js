@@ -2,6 +2,8 @@ const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const Task = require("../models/task");
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -50,6 +52,15 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
+// This is not actually stored in the database, but tells
+// the userSchema that the _id field on user is related to the owner field
+// on task. Local and foreign field are like a map.
+userSchema.virtual("tasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "owner",
+});
+
 // Add to the instance of the collection i.e. user.function
 userSchema.methods.generateAuthToken = async function () {
   // We don't use arrow functions because we want scope of this
@@ -63,6 +74,16 @@ userSchema.methods.generateAuthToken = async function () {
   user.tokens = user.tokens.concat({ token });
   await user.save();
   return token;
+};
+
+// Override the toJSON function to remove the password and tokens
+userSchema.methods.toJSON = function () {
+  const user = this;
+  const userObject = user.toObject();
+
+  delete userObject.password;
+  delete userObject.tokens;
+  return userObject;
 };
 
 // Add to the instance of the model i.e. User.function
@@ -90,6 +111,13 @@ userSchema.pre("save", async function (next) {
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
+  next();
+});
+
+// Delete user tasks when user is deleted
+userSchema.pre("remove", async function (next) {
+  const user = this;
+  await Task.deleteMany({ owner: user._id });
   next();
 });
 
