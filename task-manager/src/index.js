@@ -4,15 +4,17 @@ require("dotenv/config");
 // Start database connection
 require("./db/mongoose");
 
+// Require routes
+const userRouter = require("./routers/user");
+const taskRouter = require("./routers/task");
+
 const app = express();
 
 // Body parsing middleware
 app.use(express.json());
 
 // Register routes
-const userRouter = require("./routers/user");
 app.use(userRouter);
-const taskRouter = require("./routers/task");
 app.use(taskRouter);
 
 const port = process.env.port || 3000;
