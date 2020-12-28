@@ -20,11 +20,33 @@ router.get("/tasks/:id", auth, async (req, res) => {
 
 router.get("/tasks", auth, async (req, res) => {
   try {
-    // Only return the task if the requestor owns it
-    const tasks = await Task.find({ owner: req.user._id });
+    const match = {};
+    if (req.query.completed === "true") {
+      match.completed = true;
+    }
+
+    const sort = {};
+
+    // This is a bit rubbish, because if the user added multiple search terms in,
+    // They'd have the wrong resolver - could create a map with the function based off the key
+    if (req.query.sortBy) {
+      const parts = req.query.sortBy.split(":");
+      console.log("🚀 ~ file: task.js ~ line 32 ~ router.get ~ parts", parts);
+      sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
+    }
+
     // Get the virtual field, mapping user._id to task.owner, see user.js
-    await req.user.populate("tasks");
-    return res.send(tasks);
+    await req.user.execPopulate({
+      path: "tasks",
+      match,
+      options: {
+        limit: parseInt(req.query.limit),
+        skip: parseInt(req.query.skip),
+        sort,
+      },
+    });
+    // Above demonstrates pagination
+    return res.send(req.user.tasks);
   } catch (e) {
     return handleError(res, e, 500, "Can't get tasks");
   }
