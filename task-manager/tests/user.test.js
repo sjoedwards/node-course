@@ -1,24 +1,11 @@
-const mongoose = require("mongoose");
 const request = require("supertest");
 const app = require("../src/app");
 const User = require("../src/models/user");
-const jwt = require("jsonwebtoken");
 jest.mock("@sendgrid/mail");
-
-const userOneId = mongoose.Types.ObjectId();
-const userOne = {
-  _id: userOneId,
-  name: "Mike",
-  email: "Mike@example.com",
-  password: "56What!!!",
-  tokens: [
-    { token: jwt.sign({ _id: userOneId }, process.env.USER_SIGNING_SECRET) },
-  ],
-};
+const { userOneId, userOne, setupDatabase } = require("./fixtures/db");
 
 beforeEach(async () => {
-  await User.deleteMany();
-  await new User(userOne).save();
+  await setupDatabase();
 });
 
 test("Should signup a new user", async () => {
