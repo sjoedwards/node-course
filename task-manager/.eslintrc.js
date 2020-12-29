@@ -9,6 +9,8 @@ module.exports = {
     "eslint:recommended",
     "plugin:prettier/recommended",
     "plugin:promise/recommended",
+    "plugin:jest/recommended",
+    "plugin:jest/style",
   ],
   parserOptions: {
     ecmaVersion: 12,

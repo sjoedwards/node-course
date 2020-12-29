@@ -31,7 +31,6 @@ router.get("/tasks", auth, async (req, res) => {
     // They'd have the wrong resolver - could create a map with the function based off the key
     if (req.query.sortBy) {
       const parts = req.query.sortBy.split(":");
-      console.log("🚀 ~ file: task.js ~ line 32 ~ router.get ~ parts", parts);
       sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
     }
 
