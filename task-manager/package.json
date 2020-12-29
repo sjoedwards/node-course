@@ -28,7 +28,9 @@
     "dev": "yarn run drop-collections && nodemon src/index.js -e js,hbs",
     "drop-collections": "node src/util/dropCollections.js",
     "start": "node src/index.js",
-    "deploy": "cd .. && git subtree push --prefix task-manager heroku-task main"
+    "deploy": "cd .. && git subtree push --prefix task-manager heroku-task main",
+    "heroku:config": "heroku config --remote heroku-task",
+    "heroku:logs": "heroku logs --tail --remote heroku-task"
   },
   "author": "",
   "license": "ISC",
