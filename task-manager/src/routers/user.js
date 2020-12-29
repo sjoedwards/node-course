@@ -5,6 +5,11 @@ const handleError = require("../util/handleError");
 const auth = require("../middleware/auth");
 const multer = require("multer");
 const sharp = require("sharp");
+const {
+  sendWelcomeEmail,
+  sendCancellationEmail,
+} = require("../emails/account");
+const logger = require("../logging/logger");
 
 router.get("/users/me", auth, async (req, res) => {
   // Auth middleware adds user to req object
@@ -39,6 +44,9 @@ router.post("/users", async (req, res) => {
     const user = new User(req.body);
     const token = await user.generateAuthToken();
     res.status(201);
+    // We don't need to await - no point
+    logger(`Sending welcome email to ${user.email}`);
+    sendWelcomeEmail(user.email, user.name);
     return res.send({ user, token });
   } catch (e) {
     return handleError(res, e, 400, "Error creating user");
@@ -108,7 +116,8 @@ router.patch("/users/me", auth, async (req, res) => {
 router.delete("/users/me", auth, async (req, res) => {
   try {
     await req.user.remove();
-
+    logger(`Sending cancellation email to ${req.user.email}`);
+    sendCancellationEmail(req.user.email, req.user.name);
     return res.send(req.user);
   } catch (e) {
     return handleError(res, e, 400, "Error deleting user");
