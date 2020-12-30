@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@sendgrid/mail": "^7.4.0",
+    "bad-words": "^3.0.4",
     "bcryptjs": "^2.4.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
