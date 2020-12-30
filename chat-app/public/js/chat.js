@@ -1,42 +1,76 @@
 const socket = window.io();
 
+const autoScroll = () => {
+  // New message element
+  const $newMessage = $messages.lastElementChild;
+
+  // Height of the new message
+  const newMessageStyles = getComputedStyle($newMessage);
+  const newMessageMargin = parseInt(newMessageStyles.marginBottom);
+  const newMessageHeight = $newMessage.offsetHeight + newMessageMargin;
+
+  // Visible height of messages containtainer
+  const visibleHeight = $messages.offsetHeight;
+
+  // Actual height of messages containtainer
+  const containerHeight = $messages.scrollHeight;
+
+  // How far have I scrolled?
+  const scrollOffset = $messages.scrollTop + visibleHeight;
+
+  if (containerHeight - newMessageHeight <= scrollOffset) {
+    $messages.scrollTop = $messages.scrollHeight;
+  }
+};
+
 // Elements
 const $messageForm = document.querySelector("#message-form");
 const $messageFormInput = $messageForm.querySelector("input");
 const $messageFormButton = $messageForm.querySelector("button");
 const $locationButton = document.querySelector("#send-location");
 const $messages = document.querySelector("#messages");
+const $sidebar = document.querySelector(".chat__sidebar");
 
 // Templates
 const messageTemplate = document.querySelector("#message-template").innerHTML;
 const locationButtonTemplate = document.querySelector(
   "#location-message-template"
 ).innerHTML;
-
-// Options
-const { username, room } = window.Qs.parse(location.search, {
-  ignoreQueryPrefix: true,
-});
+const sideBarTemplate = document.querySelector("#sidebar-template").innerHTML;
 
 // Callback arguments are the second arguments from emit
-socket.on("message", ({ text, createdAt }) => {
+socket.on("message", ({ text, createdAt, username: user }) => {
   const html = window.Mustache.render(messageTemplate, {
     message: text,
     createdAt: window.moment(createdAt).format("h:mm a"),
+    user,
   });
 
   // Add the html to the div before it ends
   $messages.insertAdjacentHTML("beforeend", html);
+  autoScroll();
 });
 
-socket.on("locationMessage", ({ text: location, createdAt }) => {
-  const html = window.Mustache.render(locationButtonTemplate, {
-    location,
-    createdAt: window.moment(createdAt).format("h:mm a"),
-  });
+socket.on(
+  "locationMessage",
+  ({ text: location, createdAt, username: user }) => {
+    const html = window.Mustache.render(locationButtonTemplate, {
+      location,
+      createdAt: window.moment(createdAt).format("h:mm a"),
+      user,
+    });
 
-  // Add the html to the div before it ends
-  $messages.insertAdjacentHTML("beforeend", html);
+    // Add the html to the div before it ends
+    $messages.insertAdjacentHTML("beforeend", html);
+  }
+);
+
+socket.on("roomData", ({ room, users }) => {
+  const html = window.Mustache.render(sideBarTemplate, {
+    room,
+    users,
+  });
+  $sidebar.innerHTML = html;
 });
 
 $messageForm.addEventListener("submit", (e) => {
@@ -86,5 +120,13 @@ $locationButton.addEventListener("click", () => {
       $locationButton.removeAttribute("disabled");
     });
 });
+const query = window.Qs.parse(location.search, {
+  ignoreQueryPrefix: true,
+});
 
-socket.emit("join", { username, room });
+socket.emit("join", { username: query.username, room: query.room }, (error) => {
+  if (error) {
+    alert(error);
+    location.href = "/";
+  }
+});
