@@ -14,16 +14,20 @@ const locationButtonTemplate = document.querySelector(
 ).innerHTML;
 
 // Callback arguments are the second arguments from emit
-socket.on("message", (message) => {
-  const html = window.Mustache.render(messageTemplate, { message });
+socket.on("message", ({ text, createdAt }) => {
+  const html = window.Mustache.render(messageTemplate, {
+    message: text,
+    createdAt: window.moment(createdAt).format("h:mm a"),
+  });
 
   // Add the html to the div before it ends
   $messages.insertAdjacentHTML("beforeend", html);
 });
 
-socket.on("locationMessage", (location) => {
+socket.on("locationMessage", ({ text: location, createdAt }) => {
   const html = window.Mustache.render(locationButtonTemplate, {
     location,
+    createdAt: window.moment(createdAt).format("h:mm a"),
   });
 
   // Add the html to the div before it ends
