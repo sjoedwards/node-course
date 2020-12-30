@@ -5,10 +5,29 @@ const $messageForm = document.querySelector("#message-form");
 const $messageFormInput = $messageForm.querySelector("input");
 const $messageFormButton = $messageForm.querySelector("button");
 const $locationButton = document.querySelector("#send-location");
+const $messages = document.querySelector("#messages");
+
+// Templates
+const messageTemplate = document.querySelector("#message-template").innerHTML;
+const locationButtonTemplate = document.querySelector(
+  "#location-message-template"
+).innerHTML;
 
 // Callback arguments are the second arguments from emit
 socket.on("message", (message) => {
-  console.log(message);
+  const html = window.Mustache.render(messageTemplate, { message });
+
+  // Add the html to the div before it ends
+  $messages.insertAdjacentHTML("beforeend", html);
+});
+
+socket.on("locationMessage", (location) => {
+  const html = window.Mustache.render(locationButtonTemplate, {
+    location,
+  });
+
+  // Add the html to the div before it ends
+  $messages.insertAdjacentHTML("beforeend", html);
 });
 
 $messageForm.addEventListener("submit", (e) => {
