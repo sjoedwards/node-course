@@ -13,6 +13,11 @@ const locationButtonTemplate = document.querySelector(
   "#location-message-template"
 ).innerHTML;
 
+// Options
+const { username, room } = window.Qs.parse(location.search, {
+  ignoreQueryPrefix: true,
+});
+
 // Callback arguments are the second arguments from emit
 socket.on("message", ({ text, createdAt }) => {
   const html = window.Mustache.render(messageTemplate, {
@@ -43,8 +48,6 @@ $messageForm.addEventListener("submit", (e) => {
   socket.emit("sendMessage", message, (error) => {
     if (error) {
       console.log(error);
-    } else {
-      console.log("The message was delivered!", message);
     }
 
     // Clear and refocus input
@@ -78,5 +81,10 @@ $locationButton.addEventListener("click", () => {
         $locationButton.removeAttribute("disabled");
       });
     })
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      console.log(e);
+      $locationButton.removeAttribute("disabled");
+    });
 });
+
+socket.emit("join", { username, room });

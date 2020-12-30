@@ -25,11 +25,19 @@ app.use(express.static(path.join(publicDirectoryPath)));
 io.on("connection", (socket) => {
   console.log("New Websocket connection");
 
-  //Socket.emit will emit only to a single connection
-  socket.emit("message", generateMessage("Welcome"));
-
-  // Broadcast sends to every connection aside from the current one
-  socket.broadcast.emit("message", generateMessage("A new user has joined!"));
+  socket.on("join", ({ username, room }) => {
+    //A room is a subset of clients
+    //socket.emit - just sends to current user
+    //io.emit - emits to all clients
+    //io.to().emit - emits event to everyone in a room
+    //socket.broadcast.emit - sends to everyone but the current user
+    //socket.broadcast.to().emit - sends to everyone but the current user in a certain room
+    socket.join(room);
+    socket.emit("message", generateMessage("Welcome"));
+    socket.broadcast
+      .to(room)
+      .emit("message", generateMessage(`${username} has joined`));
+  });
 
   socket.on("sendMessage", (message, callback) => {
     if (filter.isProfane(message)) {
@@ -37,7 +45,7 @@ io.on("connection", (socket) => {
       return callback("Profanity is not allowed");
     }
     // io.emit will emit to all clients
-    io.emit("message", message);
+    io.to("room1").emit("message", generateMessage(message));
     console.log(`New message:${message}`);
 
     // Sends confirmation back to the client
@@ -48,9 +56,10 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("locationMessage", generateLocationMessage(location));
     callback();
   });
+
   socket.on("disconnect", () => {
     // Don't need to broadcast because client has already been disconnected
-    io.emit("message", generateMessage("user left"));
+    io.to("room1").emit("message", generateMessage("user left"));
   });
 });
 
