@@ -1,11 +1,7 @@
 const socket = window.io();
 
 // Callback arguments are the second arguments from emit
-socket.on("welcome", (message) => {
-  console.log(`${message}`);
-});
-
-socket.on("newMessage", (message) => {
+socket.on("message", (message) => {
   console.log(`${message}`);
 });
 
