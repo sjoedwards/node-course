@@ -37,7 +37,7 @@
     "dev:prodDB": "NODE_ENV=development MODE=prodDB nodemon src/index.js -e js,hbs",
     "drop-collections": "node src/util/dropCollections.js",
     "start": "NODE_ENV=production node src/index.js",
-    "deploy": "cd .. && git subtree push --prefix task-manager heroku-task main",
+    "deploy": "cd .. && git subtree push --prefix chat-app heroku-chat main",
     "heroku:config": "heroku config --remote heroku-task",
     "heroku:logs": "heroku logs --tail --remote heroku-task"
   },
