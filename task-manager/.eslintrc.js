@@ -4,6 +4,7 @@ module.exports = {
     commonjs: true,
     es2021: true,
     node: true,
+    jest: true,
   },
   extends: [
     "eslint:recommended",
@@ -12,9 +13,6 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 12,
-  },
-  global: {
-    jest: true,
   },
   rules: {
     "linebreak-style": ["error", "unix"],
